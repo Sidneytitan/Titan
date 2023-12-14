@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Page Layout</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='layout_body.css') }}">
+    <style>
+        body {
+            margin: 0; /* Remove as margens padrão do corpo */
+            padding: 0; /* Remove o preenchimento padrão do corpo */
+            overflow: hidden; /* Impede a barra de rolagem */
+        }
+
+        img {
+            width: 100vw; /* Largura de 100% da largura da visualização */
+            height: 100vh; /* Altura de 100% da altura da visualização */
+            object-fit: cover; /* Faz com que a imagem cubra todo o contêiner, mantendo as proporções */
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Menu Navigation Bar -->
+    <nav class="menu">
+        <a href="/">Home</a>
+        <a href="/listafornecedor">Lista de Fornecedor</a>
+        <a href="/kanban">Cotações</a>
+        <div class="gfg">Supply chain</div>
+        <div class="geeks">Sidney Ribeiro de Oliveira</div>
+    </nav>
+
+    <!-- Imagem ocupando o corpo inteiro -->
+    <img src="https://preview.redd.it/banff-national-park-last-september-v0-0ft9yqvdula81.jpg?width=1080&crop=smart&auto=webp&s=4a80c46f491251ada52445fb98e849618c565ffe" alt="Descrição da Imagem">
+
+</body>
+
+</html>

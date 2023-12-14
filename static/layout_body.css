@@ -1,0 +1,78 @@
+    <style>
+        .head1 {
+            font-size: 40px;
+            color: #009900;
+            font-weight: bold;
+        }
+
+        .head2 {
+            font-size: 17px;
+            margin-left: 10px;
+            margin-bottom: 15px;
+        }
+
+        body {
+            margin: 0 auto;
+            background-position: center;
+            background-size: contain;
+        }
+
+        .menu {
+            position: sticky;
+            top: 100;
+            background-color: #014534;
+            padding: 9px 0px 10px 40px;
+            color: white;
+            margin: 0 auto;
+            overflow: hidden;
+            margin-top: -1%;
+            font-family: "Times New Roman";
+        }
+
+        .menu a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 26px 26px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .menu-log {
+            right: auto;
+            float: right;
+        }
+
+        footer {
+            width: 100%;
+            bottom: 0px;
+            background-color: #014534;
+            color: #fff;
+            position: absolute;
+            padding-top: 20px;
+            padding-bottom: 30px;
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .body_sec {
+            margin-left: 20px;
+        }
+
+		.gfg {
+			font-variant: small-caps;
+			font-weight: bold;
+			font-family: "Times New Roman";
+			font-size: 40px;
+			color: #FFFFFF;
+			text-align: center;
+			 margin-left: 70%;
+		}
+
+		.geeks {
+			font-variant: normal;
+			text-align: center;
+			margin-left: 70%;
+		}
+    </style>
