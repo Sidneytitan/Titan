@@ -9,8 +9,11 @@ app.config['MONGO_URI'] = "mongodb+srv://sidneycko:titanbetty@cluster0.feenv6t.m
 mongo = PyMongo(app)
 
 # Verificação de Conexão com o MongoDB
-if mongo.db.command('ping')['ok'] != 1:
-    raise ConnectionError("Erro de conexão com o MongoDB. Verifique suas credenciais e conexão.")
+try:
+    if mongo.cx.server_info():
+        print("Conexão bem-sucedida com o MongoDB")
+except Exception as e:
+    raise ConnectionError(f"Erro de conexão com o MongoDB: {str(e)}")
 
 # Rota para a página Kanban
 @app.route('/kanban')
