@@ -1,5 +1,5 @@
 body {
-  background-color: #f7f7f7;
+  background-color: #EBEBEB;
   font-family: "Times New Roman", Times, serif;
 }
 
@@ -35,7 +35,7 @@ body {
 .kanban-block,
 .create-new-task-block {
   padding: 0.6rem;
-  width: 30.5%;
+  width: 32%; /* Ajuste a largura conforme necessário */
   min-width: 14rem;
   min-height: 4.5rem;
   border-radius: 0.5rem;
@@ -96,14 +96,14 @@ body {
 
 .create-new-task-block {
   display: none;
-  background: #254394; /* Cor antes de passar o mouse */
+  background: #BDBDBD; /* Cor antes de passar o mouse */
   width: 64.4%;
   flex-direction: column;
   transition: background-color 0.3s ease;
 }
 
 .create-new-task-block:hover {
-  background-color: #3498db; /* Cor após passar o mouse */
+  background-color: #BDBDBD; /* Cor após passar o mouse */
 }
 
 .form-row {
@@ -145,7 +145,7 @@ textarea {
   background-color: white;
   border-radius: 0.2rem;
   width: 49.2%;
-  border: 0.25rem solid #3498db;
+  border: 0.25rem solid #595C58;
   padding: 0.5rem 2.7rem;
   border-radius: 0.3rem;
   font-size: 1rem;

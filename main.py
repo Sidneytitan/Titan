@@ -8,25 +8,53 @@ app = Flask(__name__)
 app.config['MONGO_URI'] = "mongodb+srv://sidneycko:titanbetty@cluster0.feenv6t.mongodb.net/supply"
 mongo = PyMongo(app)
 
-# Verificação de Conexão com o MongoDB
-try:
-    if mongo.cx.server_info():
-        print("Conexão bem-sucedida com o MongoDB")
-except Exception as e:
-    raise ConnectionError(f"Erro de conexão com o MongoDB: {str(e)}")
+# Conectar a diferentes coleções
+collection_pedido = mongo.db.pedido
+collection_cotacao = mongo.db.cotacao
+collection_lista_fornecedor = mongo.db.lista_fornecedor
+
+# Rota principal
+@app.route('/pedido')
+def pedido():
+    # Busca todos os pedidos no banco de dados
+    dados_kanban = list(collection_pedido.find())
+    return render_template('pedido.html', dados_kanban=dados_kanban)
+
+# Rota para adicionar um novo pedido
+@app.route('/add', methods=['POST'])
+def add():
+    # Obtém dados do formulário
+    titulo = request.form.get('new-task-title')
+    descricao = request.form.get('new-task-description')
+    status = request.form.get('new-task-status')
+
+    # Insere o novo pedido no banco de dados
+    new_task = {'titulo': titulo, 'descricao': descricao, 'status': status}
+    result = collection_pedido.insert_one(new_task)
+
+    # Retorna a resposta em formato JSON
+    return jsonify({'success': True, 'message': 'Pedido adicionado com sucesso!', 'taskId': str(result.inserted_id)})
+
+# Rota para excluir um pedido
+@app.route('/delete/<pedido_id>', methods=['DELETE'])
+def delete(pedido_id):
+    # Remove o pedido do banco de dados pelo ID
+    collection_pedido.delete_one({'_id': ObjectId(pedido_id)})
+
+    return jsonify({'message': 'Pedido excluído com sucesso', 'success': True})
 
 # Rota para a página Kanban
 @app.route('/kanban')
 def kanban():
     # Obtendo dados do MongoDB
-    dados_kanban = mongo.db.cotacao.find()
+    dados_kanban = list(collection_cotacao.find())
     return render_template('kanban.html', dados_kanban=dados_kanban)
 
 # Rota para obter todas as cotações
 @app.route('/dados_kanban', methods=['GET'])
 def get_dados_kanban():
     # Obtendo dados do MongoDB
-    dados_kanban = mongo.db.cotacao.find()
+    dados_kanban = list(collection_cotacao.find())
 
     # Converter ObjectId para str para torná-lo serializável em JSON
     dados_kanban_serializable = [
@@ -47,20 +75,24 @@ def criar_cotacao():
     data = request.form
 
     if 'new-task-title' in data and 'new-task-description' in data:
-        mongo.db.cotacao.insert_one({
+        novo_item = collection_cotacao.insert_one({
             'titulo': data['new-task-title'],
             'descricao': data['new-task-description'],
             'status': data['new-task-status']
         })
-        return jsonify({'message': 'Cotação criada com sucesso!'})
 
-    return jsonify({'error': 'Campos título e descrição são obrigatórios!'}), 400
+        # Recupere o ID da cotação recém-criada
+        novo_item_id = str(novo_item.inserted_id)
+
+        return jsonify({'success': True, 'message': 'Cotação criada com sucesso!', 'taskId': novo_item_id})
+
+    return jsonify({'success': False, 'message': 'Falha ao criar cotação.'})
 
 # Rota para mover um item para uma nova coluna
 @app.route('/mover_item_coluna/<item_id>/<nova_coluna>', methods=['PUT'])
 def mover_item_coluna(item_id, nova_coluna):
     # Atualizar o status do item no MongoDB
-    mongo.db.cotacao.update_one(
+    collection_cotacao.update_one(
         {'_id': ObjectId(item_id)},
         {'$set': {'status': nova_coluna}}
     )
@@ -71,7 +103,7 @@ def mover_item_coluna(item_id, nova_coluna):
 def excluir_cotacao(item_id):
     try:
         # Excluir o item do MongoDB
-        result = mongo.db.cotacao.delete_one({'_id': ObjectId(item_id)})
+        result = collection_cotacao.delete_one({'_id': ObjectId(item_id)})
 
         if result.deleted_count == 1:
             return jsonify({'message': 'Cotação excluída com sucesso!'})
@@ -85,7 +117,7 @@ def excluir_cotacao(item_id):
 @app.route('/listafornecedor')
 def lista_fornecedor():
     # Obtendo dados do MongoDB
-    data_list = mongo.db.lista_fornecedor.find()
+    data_list = list(collection_lista_fornecedor.find())
     return render_template('index.html', data_list=data_list)
 
 # Rota para exibir a página inicial
@@ -108,13 +140,15 @@ def adicionar_fornecedor():
             'telefone': request.form['telefone'],
             'responsavel': request.form['responsavel'],
             'local': request.form['local'],
-            'cep': request.form['cep']
+            'cep': request.form['cep'],
+            'Ramo': request.form['ramo'],
+            'Forma_pagamento': request.form['forma_pagamento']
         }
 
         # Insere o fornecedor no MongoDB
-        mongo.db.lista_fornecedor.insert_one(novo_fornecedor)
+        collection_lista_fornecedor.insert_one(novo_fornecedor)
 
-    return redirect(url_for('listafornecedor'))
+    return redirect(url_for('lista_fornecedor'))
 
 # Rota para exibir o formulário de exclusão
 @app.route('/excluir', methods=['GET', 'POST'])
@@ -124,9 +158,9 @@ def exibir_formulario_exclusao():
         excluir = request.form['Fornecedor']
 
         # Excluir o fornecedor pelo nome
-        mongo.db.lista_fornecedor.delete_one({'fornecedor': excluir})
+        collection_lista_fornecedor.delete_one({'fornecedor': excluir})
 
-        return redirect(url_for('listafornecedor'))
+        return redirect(url_for('lista_fornecedor'))
 
     return render_template('excluir.html')
 
@@ -139,7 +173,7 @@ def pesquisar():
 
     # Construir a consulta MongoDB com base nos parâmetros de pesquisa
     query = {filtro: {'$regex': termo, '$options': 'i'}}
-    data_list = mongo.db.lista_fornecedor.find(query)
+    data_list = list(collection_lista_fornecedor.find(query))
 
     return render_template('index.html', data_list=data_list)
 

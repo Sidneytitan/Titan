@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="{{ url_for('static', filename='kanban.css') }}">
-    <script src="{{ url_for('static', filename='kanban.js') }}"></script>
-
+    <script src="{{ url_for('static', filename='pedido.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='layout_lista_fornecedor.css') }}">
 </head>
 <body>
@@ -14,10 +13,10 @@
             <a href="/">Home</a>
             <a href="/listafornecedor">Lista de Fornecedor</a>
             <a href="kanban">Cotações</a>
-             <a href="pedido">Pedido</a>
+            <a href="pedido">Pedido</a>
         </div>
         <div class="neon supply-chain">Supply Chain</div>
-        <div class="neon fornecedores">Gestão de Cotações</div>
+        <div class="neon fornecedores">Gestão de Pedidos</div>
     </div>
 
     <div class="container">
@@ -27,9 +26,9 @@
 
         <div class="kanban-board">
             <div class="kanban-block" id="todo" ondrop="drop(event)" ondragover="allowDrop(event)">
-                <strong>Cotações Pendentes<span id="todo-count"></span></strong>
+                <strong>Pedidos Pendentes<span id="todo-count"></span></strong>
                 <div class="task-button-block">
-                    <button id="task-button" onclick="createTask()">Cadastro de Cotação</button>
+                    <button id="task-button" onclick="createTask()">Cadastro de Pedido</button>
                 </div>
 
                 <!-- Iterar sobre os dados do MongoDB e exibi-los -->
@@ -41,7 +40,7 @@
 
                         <!-- Adicionar botão de exclusão apenas para a última coluna -->
                         {% if item.status == 'done' %}
-                            <button class="delete-button" onclick="excluirCotacao('{{ item._id }}')">Excluir</button>
+                            <button class="delete-button" onclick="excluirPedido('{{ item._id }}')">Excluir</button>
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -52,13 +51,13 @@
             </div>
 
             <div class="kanban-block" id="done" ondrop="drop(event)" ondragover="allowDrop(event)">
-                <strong>Cotações Finalizadas<span id="done-count"></span></strong>
+                <strong>Pedidos Finalizados<span id="done-count"></span></strong>
             </div>
 
             <div class="create-new-task-block" id="create-new-task-block">
-                <strong>Nova Cotação</strong>
+                <strong>Novo Pedido</strong>
                 <span class="form-row">
-                    <label class="form-row-label" for="new-task-title">Numero da Cotação</label>
+                    <label class="form-row-label" for="new-task-title">Número do Pedido</label>
                     <input class="form-row-input" type="text" name="new-task-title" id="new-task-title">
                 </span>
                 <span class="form-row">
@@ -75,7 +74,7 @@
                 </span>
                 <span class="form-row-buttons">
                     <button id="edit-button" onclick="editTask()">Edit</button>
-                    <button id="save-button" onclick="saveTask()">Adicionar Cotação</button>
+                    <button id="save-button" onclick="saveTask()">Adicionar Pedido</button>
                     <button id="cancel-button" onclick="createTask()">Fechar</button>
                 </span>
             </div>
@@ -84,5 +83,3 @@
 
 </body>
 </html>
-
-

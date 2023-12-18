@@ -1,5 +1,3 @@
-// kanban.js
-
 function drag(ev) {
     ev.dataTransfer.setData("text", ev.target.id);
 }
@@ -14,25 +12,25 @@ function drop(ev) {
     var draggedElement = document.getElementById(data);
     var destinationBlock = ev.currentTarget;
 
-    // Verifica se o destino é "Cotações Finalizadas"
+    // Verifica se o destino é "Pedidos Finalizados"
     if (destinationBlock.id === "done") {
         // Adiciona um botão de exclusão ao cartão
         var deleteButton = document.createElement("button");
         deleteButton.innerHTML = "Excluir";
-        deleteButton.onclick = function() {
+        deleteButton.onclick = function () {
             // Adicionar lógica para excluir do MongoDB se necessário
             var itemId = draggedElement.id;
-            excluirCotacao(itemId, function() {
+            excluirPedido(itemId, function () {
                 // Remove o cartão ao clicar no botão de exclusão
                 draggedElement.remove();
-                // Atualizar a contagem de cartões em "Cotações Finalizadas" após excluir o cartão
+                // Atualizar a contagem de cartões em "Pedidos Finalizados" após excluir o cartão
                 updateDoneCount();
             });
         };
         draggedElement.appendChild(deleteButton);
     }
 
-    // Verifica se o destino é "Cotações Pendentes"
+    // Verifica se o destino é "Pedidos Pendentes"
     if (destinationBlock.id === "todo") {
         // Adiciona o cartão acima do botão de cadastro
         destinationBlock.insertBefore(draggedElement, destinationBlock.lastElementChild);
@@ -44,12 +42,12 @@ function drop(ev) {
     // Salvar a posição atual no armazenamento local
     salvarPosicaoCartoes();
 
-    // Atualizar a contagem de cartões em "Cotações Pendentes"
+    // Atualizar a contagem de cartões em "Pedidos Pendentes"
     updateTodoCount();
     // Atualizar a contagem de cartões em "Realizando Orçamentos"
     updateInProgressCount();
 
-    // Atualizar a contagem de cartões em "Cotações Finalizadas"
+    // Atualizar a contagem de cartões em "Pedidos Finalizados"
     if (destinationBlock.id === "done") {
         updateDoneCount();
     }
@@ -76,7 +74,7 @@ function saveTask() {
     var status = document.getElementById("new-task-status").value;
 
     // Enviar dados ao servidor usando fetch ou outra técnica
-    fetch('/criar_cotacao', {
+    fetch('/add', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -91,7 +89,7 @@ function saveTask() {
     .then(data => {
         alert(data.message); // Exibir mensagem de sucesso ou erro
 
-        // Adicionar lógica para atualizar a página ou a lista de cards se necessário
+        // Adicionar lógica para atualizar a lista de pedidos no DOM
         if (data.success) {
             // Atualizar a posição dos cartões sem recarregar a página
             salvarPosicaoCartoes();
@@ -102,12 +100,19 @@ function saveTask() {
             // Adicionar o novo cartão à coluna apropriada
             var destinationColumn = document.getElementById(status.toLowerCase());
             destinationColumn.insertAdjacentHTML('beforeend', newCardHTML);
+
+            // Atualizar contagem de pedidos
+            updateTodoCount();
+            updateInProgressCount();
+            updateDoneCount();
         }
     })
     .catch(error => {
         console.error('Erro ao enviar dados:', error);
     });
 }
+
+
 
 function editTask() {
     var saveButton = document.getElementById("save-button");
@@ -121,9 +126,9 @@ function editTask() {
     }
 }
 
-function excluirCotacao(itemId, callback) {
-    // Enviar solicitação ao servidor para excluir a cotação do MongoDB
-    fetch('/excluir_cotacao/' + itemId, {
+function excluirPedido(itemId, callback) {
+    // Enviar solicitação ao servidor para excluir o pedido do MongoDB
+    fetch('/delete/' + itemId, {
         method: 'DELETE',
     })
     .then(response => response.json())
@@ -131,13 +136,13 @@ function excluirCotacao(itemId, callback) {
         alert(data.message); // Exibir mensagem de sucesso ou erro
         // Adicionar lógica para atualizar a página ou a lista de cards se necessário
 
-        // Chamar o callback após excluir a cotação
+        // Chamar o callback após excluir o pedido
         if (typeof callback === 'function') {
             callback();
         }
     })
     .catch(error => {
-        console.error('Erro ao excluir cotação:', error);
+        console.error('Erro ao excluir pedido:', error);
     });
 }
 
@@ -166,24 +171,24 @@ function updateTodoCount() {
     var todoBlock = document.getElementById("todo");
     var todoCountElement = document.getElementById("todo-count");
     var todoCount = todoBlock.getElementsByClassName("task").length;
-    todoCountElement.innerHTML = ` (${todoCount} cartões)`;
+    todoCountElement.innerHTML = ` (${todoCount} pedidos)`;
 }
 
 function updateInProgressCount() {
     var inProgressBlock = document.getElementById("inprogress");
     var inProgressCountElement = document.getElementById("inprogress-count");
     var inProgressCount = inProgressBlock.getElementsByClassName("task").length;
-    inProgressCountElement.innerHTML = ` (${inProgressCount} cartões)`;
+    inProgressCountElement.innerHTML = ` (${inProgressCount} pedidos)`;
 }
 
 function updateDoneCount() {
     var doneBlock = document.getElementById("done");
     var doneCountElement = document.getElementById("done-count");
     var doneCount = doneBlock.getElementsByClassName("task").length;
-    doneCountElement.innerHTML = ` (${doneCount} cartões)`;
+    doneCountElement.innerHTML = ` (${doneCount} pedidos)`;
 }
 
-window.onload = function() {
+window.onload = function () {
     carregarPosicaoSalva();
     updateTodoCount();
     updateInProgressCount();
@@ -224,12 +229,12 @@ function moverCartoesParaColuna(colunaId, cartoesIds) {
 
 // Função para criar o HTML do novo cartão
 function createCardHTML(taskId, title, description, status) {
-    var deleteButtonHTML = '<button onclick="excluirCotacao(' + taskId + ')">Excluir</button>';
+    var deleteButtonHTML = '<button onclick="excluirPedido(' + taskId + ')">Excluir</button>';
     var cardHTML = '<div id="' + taskId + '" class="task" draggable="true" ondragstart="drag(event)">' +
-                   '<span><strong>Título:</strong> ' + title + '</span>' +
-                   '<span><strong>Descrição:</strong> ' + description + '</span>' +
-                   '<span><strong>Status:</strong> ' + status + '</span>' +
-                   (status.toLowerCase() === 'done' ? deleteButtonHTML : '') +
-                   '</div>';
+        '<span><strong>Título:</strong> ' + title + '</span>' +
+        '<span><strong>Descrição:</strong> ' + description + '</span>' +
+        '<span><strong>Status:</strong> ' + status + '</span>' +
+        (status.toLowerCase() === 'done' ? deleteButtonHTML : '') +
+        '</div>';
     return cardHTML;
 }
