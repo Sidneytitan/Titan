@@ -13,7 +13,14 @@ collection_pedido = mongo.db.pedido
 collection_cotacao = mongo.db.cotacao
 collection_lista_fornecedor = mongo.db.lista_fornecedor
 
-# Rota principal
+
+
+# Rota para exibir a página inicial
+@app.route('/')
+def homepage():
+    return render_template('homepage.html')
+
+
 @app.route('/pedido')
 def pedido():
     # Busca todos os pedidos no banco de dados
@@ -120,10 +127,7 @@ def lista_fornecedor():
     data_list = list(collection_lista_fornecedor.find())
     return render_template('index.html', data_list=data_list)
 
-# Rota para exibir a página inicial
-@app.route('/')
-def homepage():
-    return render_template('homepage.html')
+
 
 # Rota para exibir o formulário de adição
 @app.route('/adicionar', methods=['GET'])
